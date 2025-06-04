@@ -89,7 +89,6 @@ export function formatTooltip({
   const percentFormatter = getNumberFormatter(NumberFormats.PERCENT_2_POINT);
 
   let formattedPercent = '';
-  // the last item is current node, here we should find the parent node
   const currentNode = treePathInfo[treePathInfo.length - 1];
   const parentNode = treePathInfo[treePathInfo.length - 2];
   if (parentNode) {
@@ -120,12 +119,9 @@ export default function transformProps(
     emitCrossFilters,
     datasource,
   } = chartProps;
-  const { data = [] } = queriesData[0];
-  const { columnFormats = {}, currencyFormats = {} } = datasource;
-  const { setDataMask = () => {}, onContextMenu } = hooks;
-  const coltypeMapping = getColtypesMapping(queriesData[0]);
 
   const {
+    treemapFont = '14px sans-serif',
     colorScheme,
     groupby = [],
     metric = '',
@@ -142,7 +138,12 @@ export default function transformProps(
     ...DEFAULT_TREEMAP_FORM_DATA,
     ...formData,
   };
-  const refs: Refs = {};
+
+  const { data = [] } = queriesData[0];
+  const { columnFormats = {}, currencyFormats = {} } = datasource;
+  const { setDataMask = () => {}, onContextMenu } = hooks;
+  const coltypeMapping = getColtypesMapping(queriesData[0]);
+
   const colorFn = CategoricalColorNamespace.getScale(colorScheme as string);
   const numberFormatter = getValueFormatter(
     metric,
@@ -163,6 +164,7 @@ export default function transformProps(
   const metricLabel = getMetricLabel(metric);
   const groupbyLabels = groupby.map(getColumnLabel);
   const treeData = treeBuilder(data, groupbyLabels, metricLabel);
+
   const traverse = (treeNodes: TreeNode[], path: string[]) =>
     treeNodes.map(treeNode => {
       const { name: nodeName, value, groupBy } = treeNode;
@@ -191,7 +193,6 @@ export default function transformProps(
         };
       } else {
         const joinedName = newPath.join(',');
-        // map(joined_name: [columnLabel_1, columnLabel_2, ...])
         columnsLabelMap.set(joinedName, newPath);
         if (
           filterState.selectedValues &&
@@ -228,7 +229,6 @@ export default function transformProps(
     },
   ];
 
-  // set a default color when metric values are 0 over all.
   const levels = [
     {
       upperLabel: {
@@ -242,6 +242,17 @@ export default function transformProps(
       },
     },
   ];
+
+  // Extract font size and family from "treemapFont"
+  let parsedFontSize = LABEL_FONTSIZE;
+  let parsedFontFamily = 'sans-serif';
+  try {
+    const [size, ...familyParts] = treemapFont.split(' ');
+    parsedFontSize = parseInt(size, 10) || LABEL_FONTSIZE;
+    parsedFontFamily = familyParts.join(' ') || 'sans-serif';
+  } catch {
+    // fallback in case of invalid format
+  }
 
   const series: TreemapSeriesOption[] = [
     {
@@ -265,13 +276,15 @@ export default function transformProps(
         position: labelPosition,
         formatter,
         color: theme.colors.grayscale.dark2,
-        fontSize: LABEL_FONTSIZE,
+        fontSize: parsedFontSize,
+        fontFamily: parsedFontFamily,
       },
       upperLabel: {
         show: showUpperLabels,
         formatter,
         textBorderColor: 'transparent',
-        fontSize: LABEL_FONTSIZE,
+        fontSize: parsedFontSize,
+        fontFamily: parsedFontFamily,
       },
       data: transformedData,
     },
@@ -279,7 +292,7 @@ export default function transformProps(
 
   const echartOptions: EChartsCoreOption = {
     tooltip: {
-      ...getDefaultTooltip(refs),
+      ...getDefaultTooltip({}),
       show: !inContextMenu,
       trigger: 'item',
       formatter: (params: any) =>
@@ -302,7 +315,7 @@ export default function transformProps(
     groupby,
     selectedValues: filterState.selectedValues || [],
     onContextMenu,
-    refs,
+    refs: {},
     coltypeMapping,
   };
 }

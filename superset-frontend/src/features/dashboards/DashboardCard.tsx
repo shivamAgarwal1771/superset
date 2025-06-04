@@ -153,16 +153,23 @@ function DashboardCard({
         certificationDetails={dashboard.certification_details}
         titleRight={<PublishedLabel isPublished={dashboard.published} />}
         cover={
-          !isFeatureEnabled(FeatureFlag.Thumbnails) || !showThumbnails ? (
-            <></>
+          showThumbnails && dashboard.thumbnail_url ? (
+            <img
+              src={`/static/assets/images/${dashboard.id}.png`}
+              alt="Dashboard Thumbnail"
+              style={{
+                width: '100%',
+                height: '150px',
+                objectFit: 'cover',
+                borderRadius: '4px',
+              }}
+            />
           ) : null
         }
         url={bulkSelectEnabled ? undefined : dashboard.url}
         linkComponent={Link}
         imgURL={dashboard.thumbnail_url}
-        imgFallbackURL={assetUrl(
-          '/static/assets/images/dashboard-card-fallback.svg',
-        )}
+        imgFallbackURL={assetUrl(`/static/assets/images/${dashboard.id}.png`)}
         description={t('Modified %s', dashboard.changed_on_delta_humanized)}
         coverLeft={<FacePile users={dashboard.owners || []} />}
         actions={

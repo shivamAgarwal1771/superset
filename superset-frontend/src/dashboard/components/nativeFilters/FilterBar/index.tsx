@@ -308,32 +308,18 @@ const FilterBar: FC<FiltersBarProps> = ({
     ],
   );
 
-  const filterBarComponent =
-    orientation === FilterBarOrientation.Horizontal ? (
-      <Horizontal
-        actions={actions}
-        canEdit={canEdit}
-        dashboardId={dashboardId}
-        dataMaskSelected={dataMaskSelected}
-        filterValues={filterValues}
-        isInitialized={isInitialized}
-        onSelectionChange={handleFilterSelectionChange}
-      />
-    ) : verticalConfig ? (
-      <Vertical
-        actions={actions}
-        canEdit={canEdit}
-        dataMaskSelected={dataMaskSelected}
-        filtersOpen={verticalConfig.filtersOpen}
-        filterValues={filterValues}
-        isInitialized={isInitialized}
-        height={verticalConfig.height}
-        offset={verticalConfig.offset}
-        onSelectionChange={handleFilterSelectionChange}
-        toggleFiltersBar={verticalConfig.toggleFiltersBar}
-        width={verticalConfig.width}
-      />
-    ) : null;
+const filterBarComponent = (
+  <Horizontal
+    actions={actions}
+    canEdit={canEdit}
+    dashboardId={dashboardId}
+    dataMaskSelected={dataMaskSelected}
+    filterValues={filterValues}
+    isInitialized={isInitialized}
+    onSelectionChange={handleFilterSelectionChange}
+  />
+);
+
 
   return hidden ? (
     <HiddenFilterBar>{filterBarComponent}</HiddenFilterBar>
